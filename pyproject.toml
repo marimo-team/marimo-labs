@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "marimolabs"
+name = "marimo_labs"
 description = "Cutting-edge experimental features for marimo"
 dynamic = ["version"]
 # We try to keep dependencies to a minimum, to avoid conflicts with
@@ -37,14 +37,14 @@ classifiers = [
 ]
 
 [project.urls]
-homepage = "https://github.com/marimo-team/marimo"
+homepage = "https://github.com/marimo-team/marimo_labs"
 
 [tool.setuptools.dynamic]
-version = { attr = "marimolabs.__version__" }
+version = { attr = "marimo_labs.__version__" }
 
 [tool.setuptools.packages.find]
 # project source is entirely contained in the `marimo` package
-include = ["marimolabs*"]
+include = ["marimo_labs*"]
 
 [tool.ruff]
 line-length=79
@@ -93,7 +93,6 @@ minversion = "6.0"
 testpaths = [
     "tests",
 ]
-asyncio_mode = "auto"
 
 [tool.typos.default.extend-words]
 wheres = "wheres"

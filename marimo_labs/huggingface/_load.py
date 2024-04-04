@@ -9,9 +9,9 @@ from typing import Any, Callable
 import requests
 import huggingface_hub
 import marimo as mo
-from marimolabs.huggingface import _load_utils
-from marimolabs.huggingface import _outputs
-from marimolabs.huggingface._processing_utils import (
+from marimo_labs.huggingface import _load_utils
+from marimo_labs.huggingface import _outputs
+from marimo_labs.huggingface._processing_utils import (
     encode_to_base64,
     save_base64_to_cache,
     to_binary,
@@ -118,7 +118,7 @@ def from_model(
     MARIMOLABS_CACHE = os.environ.get(
         "MARIMOLABS_TEMP_DIR"
     ) or str(  # noqa: N806
-        Path(tempfile.gettempdir()) / "marimolabs"
+        Path(tempfile.gettempdir()) / "marimo_labs"
     )
 
     def custom_post_binary(data):

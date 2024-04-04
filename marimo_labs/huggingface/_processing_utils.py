@@ -6,7 +6,7 @@ from os.path import abspath
 from pathlib import Path
 
 import requests
-from marimolabs.huggingface import _client_utils
+from marimo_labs.huggingface import _client_utils
 
 
 def hash_base64(base64_encoding: str, chunk_num_blocks: int = 128) -> str:

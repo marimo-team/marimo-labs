@@ -6,8 +6,8 @@ app = marimo.App()
 
 @app.cell
 def __():
-    import marimolabs as molabs
-    return molabs,
+    import marimolabs
+    return marimolabs,
 
 
 @app.cell(hide_code=True)
