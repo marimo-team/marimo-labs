@@ -10,19 +10,19 @@ def __():
     return molabs,
 
 
-@app.cell
+@app.cell(hide_code=True)
 def __(mo, model_type, model_type_to_model):
     models = mo.ui.dropdown(
         model_type_to_model[model_type.value], label="Choose a model"
     )
+
     mo.hstack([model_type, models if model_type.value else ""], justify="start")
     return models,
 
 
 @app.cell
-def __(mo, models, molabs):
+def load_model(mo, models, molabs):
     mo.stop(models.value is None)
-
     model = molabs.huggingface.load(models.value)
     return model,
 
@@ -31,7 +31,7 @@ def __(mo, models, molabs):
 def __(mo, model):
     mo.md(
         f"""
-        Here are some example inputs to get you started:
+        Example inputs:
 
         {mo.as_html(model.examples)}
         """

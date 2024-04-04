@@ -1,3 +1,5 @@
 __version__ = "0.1.0"
 
-from marimolabs import huggingface
+__all__ = ["huggingface"]
+
+import marimolabs.huggingface as huggingface
