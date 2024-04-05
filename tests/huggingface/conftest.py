@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture(autouse=True)
 def marimo_temp_dir(monkeypatch, tmp_path):
     """tmp_path is unique to each test function.

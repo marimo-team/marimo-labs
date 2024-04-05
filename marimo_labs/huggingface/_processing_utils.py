@@ -5,7 +5,8 @@ import hashlib
 from os.path import abspath
 from pathlib import Path
 
-import requests
+import requests  # type: ignore
+
 from marimo_labs.huggingface import _client_utils
 
 
@@ -23,10 +24,11 @@ def save_base64_to_cache(
     base64_encoding: str, cache_dir: str, file_name: str | None = None
 ) -> str:
     """Converts a base64 encoding to a file and returns the path to the file if
-    the file doesn't already exist. Otherwise returns the path to the existing file.
+    the file doesn't already exist. Otherwise returns the path to the existing
+    file.
     """
-    temp_dir = hash_base64(base64_encoding)
-    temp_dir = Path(cache_dir) / temp_dir
+    temp_dir_name = hash_base64(base64_encoding)
+    temp_dir = Path(cache_dir) / temp_dir_name
     temp_dir.mkdir(exist_ok=True, parents=True)
 
     guess_extension = _client_utils.get_extension(base64_encoding)
@@ -53,7 +55,8 @@ def extract_base64_data(x: str) -> str:
 
 
 def to_binary(x: str | dict) -> bytes:
-    """Converts a base64 string or dictionary to a binary string that can be sent in a POST."""
+    """Converts a base64 string or dictionary to a binary string that can be
+    sent in a POST."""
     if isinstance(x, dict):
         if x.get("data"):
             base64str = x["data"]

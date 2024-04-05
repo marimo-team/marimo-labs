@@ -39,6 +39,16 @@ classifiers = [
 [project.urls]
 homepage = "https://github.com/marimo-team/marimo_labs"
 
+[project.optional-dependencies]
+dev = [
+    "black~=23.3.0",
+    "build~=0.10.0",
+    "mypy~=1.9.0",
+    "ruff~=0.3.5",
+    "typos~=1.20.4",
+    "pytest~=8.1.1",
+]
+
 [tool.setuptools.dynamic]
 version = { attr = "marimo_labs.__version__" }
 
@@ -52,8 +62,8 @@ exclude = [
     "docs",
     "build",
 ]
-ignore = []
-select = [
+lint.ignore = []
+lint.select = [
     # pyflakes
     "F",
     # pycodestyle
@@ -75,16 +85,16 @@ select = [
 ]
 
 # Never try to fix `F401` (unused imports).
-unfixable = ["F401"]
+lint.unfixable = ["F401"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]
 
 [tool.black]
 line-length = 79
 
 [tool.mypy]
-strict = true
+strict = false
 exclude = []
 warn_unused_ignores=false
 

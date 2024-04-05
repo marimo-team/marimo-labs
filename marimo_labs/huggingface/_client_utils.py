@@ -6,17 +6,17 @@ import secrets
 import tempfile
 from pathlib import Path
 
-import requests
+import requests  # type: ignore
 
 
 def get_extension(encoding: str) -> str | None:
     encoding = encoding.replace("audio/wav", "audio/x-wav")
-    type = mimetypes.guess_type(encoding)[0]
-    if type == "audio/flac":  # flac is not supported by mimetypes
+    typ = mimetypes.guess_type(encoding)[0]
+    if typ == "audio/flac":  # flac is not supported by mimetypes
         return "flac"
-    elif type is None:
+    elif typ is None:
         return None
-    extension = mimetypes.guess_extension(type)
+    extension = mimetypes.guess_extension(typ)
     if extension is not None and extension.startswith("."):
         extension = extension[1:]
     return extension
@@ -25,7 +25,10 @@ def get_extension(encoding: str) -> str | None:
 def strip_invalid_filename_characters(
     filename: str, max_bytes: int = 200
 ) -> str:
-    """Strips invalid characters from a filename and ensures that the file_length is less than `max_bytes` bytes."""
+    """Strips invalid characters from a filename
+
+    Ensures that the file_length is less than `max_bytes` bytes.
+    """
     filename = "".join(
         [char for char in filename if char.isalnum() or char in "._- "]
     )
@@ -48,10 +51,10 @@ def decode_base64_to_binary(encoding: str) -> tuple[bytes, str | None]:
 def decode_base64_to_file(
     encoding: str,
     file_path: str | None = None,
-    dir: str | Path | None = None,
+    direct: str | Path | None = None,
     prefix: str | None = None,
 ):
-    directory = Path(dir or tempfile.gettempdir()) / secrets.token_hex(20)
+    directory = Path(direct or tempfile.gettempdir()) / secrets.token_hex(20)
     directory.mkdir(exist_ok=True, parents=True)
     data, extension = decode_base64_to_binary(encoding)
     if file_path is not None and prefix is None:
@@ -98,7 +101,7 @@ def is_http_url_like(possible_url) -> bool:
     return possible_url.startswith(("http://", "https://"))
 
 
-def encode_file_to_base64(f: str | Path):
+def encode_file_to_base64(f: str | Path) -> str:
     with open(f, "rb") as file:
         encoded_string = base64.b64encode(file.read())
         base64_str = str(encoded_string, "utf-8")
@@ -111,7 +114,7 @@ def encode_file_to_base64(f: str | Path):
         )
 
 
-def encode_url_to_base64(url: str):
+def encode_url_to_base64(url: str) -> str:
     resp = requests.get(url)
     resp.raise_for_status()
     encoded_string = base64.b64encode(resp.content)
@@ -125,7 +128,7 @@ def encode_url_to_base64(url: str):
     )
 
 
-def encode_url_or_file_to_base64(path: str | Path):
+def encode_url_or_file_to_base64(path: str | Path) -> str:
     path = str(path)
     if is_http_url_like(path):
         return encode_url_to_base64(path)

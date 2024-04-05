@@ -1,7 +1,9 @@
-import io
-import marimo as mo
+from __future__ import annotations
 
-from typing import Callable, Any
+import io
+from typing import Any, Callable
+
+import marimo as mo
 import PIL.Image
 
 
@@ -13,9 +15,11 @@ class Output:
     def _mime_(self) -> tuple[str, str]:
         return (
             "text/html",
-            self.html.text
-            if self.html is not None
-            else mo.as_html(self.value).text,
+            (
+                self.html.text
+                if self.html is not None
+                else mo.as_html(self.value).text
+            ),
         )
 
 

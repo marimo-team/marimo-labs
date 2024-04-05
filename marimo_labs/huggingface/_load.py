@@ -6,15 +6,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-import requests
-import huggingface_hub
+import huggingface_hub  # type: ignore
 import marimo as mo
-from marimo_labs.huggingface import _load_utils
-from marimo_labs.huggingface import _outputs
+import requests  # type: ignore
+
+from marimo_labs.huggingface import _load_utils, _outputs
 from marimo_labs.huggingface._processing_utils import (
     encode_to_base64,
     save_base64_to_cache,
-    to_binary,
 )
 
 
@@ -29,35 +28,50 @@ class HFModel:
 def load(
     name: str,
     hf_token: str | None = None,
-    alias: str | None = None,
     **kwargs,
 ) -> HFModel:
     """Constructs a demo from a Hugging Face repo.
 
-    Can accept model repos (if src is "models"). The input
-    and output components are automatically loaded from the repo. Note that if a Space is loaded, certain high-level attributes of the Blocks (e.g.
-    custom `css`, `js`, and `head` attributes) will not be loaded.
+    Can accept model repos (if src is "models"). The input and output
+    components are automatically loaded from the repo. Note that if a Space is
+    loaded, certain high-level attributes of the Blocks (e.g. custom `css`,
+    `js`, and `head` attributes) will not be loaded.
+
     Parameters:
-        name: the name of the model (e.g. "gpt2" or "facebook/bart-base") or space (e.g. "flax-community/spanish-gpt2"), can include the `src` as prefix (e.g. "models/facebook/bart-base")
-        src: the source of the model: `models` or `spaces` (or leave empty if source is provided as a prefix in `name`)
-        hf_token: optional access token for loading private Hugging Face Hub models or spaces. Find your token here: https://huggingface.co/settings/tokens.  Warning: only provide this if you are loading a trusted private Space as it can be read by the Space you are loading.
-        alias: optional string used as the name of the loaded model instead of the default name (only applies if loading a Space running Gradio 2.x)
+        name: the name of the model (e.g. "gpt2" or "facebook/bart-base") or
+            space (e.g. "flax-community/spanish-gpt2"), can include the `src`
+            as prefix (e.g. "models/facebook/bart-base")
+
+        src: the source of the model: `models` or `spaces` (or leave empty if
+            source is provided as a prefix in `name`)
+
+        hf_token: optional access token for loading private Hugging Face Hub
+            models. Find your token here:
+            https://huggingface.co/settings/tokens.
+
     Returns:
-        a Gradio Blocks object for the given model
+        an HFModel object
+
     Example:
-        import gradio as gr
-        demo = gr.load("gradio/question-answering", src="spaces")
-        demo.launch()
+
+    ```python
+    import marimo_labs
+
+    model = marimo_labs.load("models/runwayml/stable-diffusion-v1-5")
+    inputs = model.inputs
+    inputs
+    ```
+
+    ```python
+    model.inference_function(inputs.value)
+    ```
     """
-    return load_model_from_repo(
-        name=name, hf_token=hf_token, alias=alias, **kwargs
-    )
+    return load_model_from_repo(name=name, hf_token=hf_token, **kwargs)
 
 
 def load_model_from_repo(
     name: str,
     hf_token: str | None = None,
-    alias: str | None = None,
     **kwargs,
 ) -> HFModel:
     """Creates and returns an HFModel"""
@@ -66,7 +80,8 @@ def load_model_from_repo(
     tokens = name.split("/")
     if len(tokens) <= 1:
         raise ValueError(
-            "Either `src` parameter must be provided, or `name` must be formatted as {src}/{repo name}"
+            "Either `src` parameter must be provided, or "
+            "`name` must be formatted as {src}/{repo name}"
         )
     src = tokens[0]
     name = "/".join(tokens[1:])
@@ -82,12 +97,10 @@ def load_model_from_repo(
             f"parameter: src must be one of {factory_methods.keys()}"
         )
 
-    return factory_methods[src](name, hf_token, alias, **kwargs)
+    return factory_methods[src](name, hf_token, **kwargs)
 
 
-def from_model(
-    model_name: str, hf_token: str | None, alias: str | None, **kwargs
-) -> HFModel:
+def from_model(model_name: str, hf_token: str | None, **kwargs) -> HFModel:
     del kwargs
 
     model_url = f"https://huggingface.co/{model_name}"
@@ -129,9 +142,10 @@ def from_model(
             encode_to_base64(response), cache_dir=MARIMOLABS_CACHE
         )
 
+    inputs: mo.Html  # actually a UIElement, but not in public API ...
     preprocess = None
-    postprocess = None
-    examples = None
+    postprocess: Callable[..., Any] | None = None
+    examples: Any = None
     fn: Callable[..., _outputs.Output]
 
     # example model: ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition
@@ -194,14 +208,15 @@ def from_model(
     elif p == "feature-extraction":
         inputs = mo.ui.text_area(label="Text to featurize")
         # outputs = components.Dataframe(label="Output")
-        postprocess = lambda v: v[0] if len(v) == 1 else v
+        postprocess = lambda v: v[0] if len(v) == 1 else v  # type: ignore # noqa: E731
         fn = _outputs.construct_output_function(client.feature_extraction)
     # example model: distilbert/distilbert-base-uncased
     elif p == "fill-mask":
         inputs = mo.ui.text_area(label="Masked text")
         # outputs = components.Label(label="Classification")
         examples = [
-            "Hugging Face is the AI community, working together, to [MASK] the future."
+            "Hugging Face is the AI community, working together, to "
+            "[MASK] the future."
         ]
         postprocess = _load_utils.postprocess_mask_tokens
         fn = _outputs.construct_output_function(client.fill_mask)
@@ -233,8 +248,10 @@ def from_model(
         examples = [
             [
                 "What entity was responsible for the Apollo program?",
-                "The Apollo program, also known as Project Apollo, was the third United States human spaceflight"
-                " program carried out by the National Aeronautics and Space Administration (NASA), which accomplished"
+                "The Apollo program, also known as Project Apollo, was the "
+                "third United States human spaceflight"
+                " program carried out by the National Aeronautics and Space "
+                "Administration (NASA), which accomplished"
                 " landing the first humans on the Moon from 1969 to 1972.",
             ]
         ]
@@ -246,7 +263,7 @@ def from_model(
         # outputs = components.Textbox(label="Summary")
         examples = [
             [
-                "The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building, and the tallest structure in Paris. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world, a title it held for 41 years until the Chrysler Building in New York City was finished in 1930. It was the first structure to reach a height of 300 metres. Due to the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct."
+                "The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building, and the tallest structure in Paris. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world, a title it held for 41 years until the Chrysler Building in New York City was finished in 1930. It was the first structure to reach a height of 300 metres. Due to the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct."  # noqa: E501
             ]
         ]
         fn = _outputs.construct_output_function(client.summarization)
@@ -304,7 +321,10 @@ def from_model(
                 ),
                 mo.ui.text_area(
                     rows=7,
-                    placeholder="Sentences to compare to -- separate each sentence by a newline",
+                    placeholder=(
+                        "Sentences to compare to -- separate each "
+                        "sentence by a newline"
+                    ),
                     label="Sentences to compare to",
                 ),
             ]
@@ -314,7 +334,7 @@ def from_model(
         fn = _outputs.construct_output_function(
             _load_utils.sentence_similarity_wrapper(client)
         )
-    # Example: julien-c/ljspeech_tts_train_tacotron2_raw_phn_tacotron_g2p_en_no_space_train
+    # Example: julien-c/ljspeech_tts_train_tacotron2_raw_phn_tacotron_g2p_en_no_space_train  # noqa: E501
     elif p == "text-to-speech":
         inputs = mo.ui.text_area(label="Text")
         # outputs = components.Audio(label="Audio")
@@ -335,7 +355,7 @@ def from_model(
         inputs = mo.ui.text_area(label="Input")
         # outputs = components.HighlightedText(label="Output")
         examples = [
-            "marimo is building a new kind of programming environment for ML/AI."
+            "marimo is a new kind of programming environment for ML/AI."
         ]
         fn = _outputs.construct_output_function(
             _load_utils.token_classification_wrapper(client)
@@ -351,7 +371,7 @@ def from_model(
         postprocess = _load_utils.postprocess_label
         # outputs = components.Label(label="Label")
         fn = _outputs.construct_output_function(
-            lambda file_upload_results, text: client.document_question_answering(
+            lambda file_upload_results, text: client.document_question_answering(  # noqa: E501
                 file_upload_results[0].contents,
                 text,
             )
@@ -425,7 +445,7 @@ def from_model(
     else:
         raise ValueError(f"Unsupported pipeline type: {p}")
 
-    def query_huggingface_inference_endpoints(data):
+    def query_huggingface_inference_endpoints(data: Any) -> _outputs.Output:
         if not isinstance(data, (list, tuple)):
             data = [data]
 
@@ -438,10 +458,10 @@ def from_model(
         output.value = value
         return output
 
-    query_huggingface_inference_endpoints.__name__ = alias or model_name
+    query_huggingface_inference_endpoints.__name__ = model_name
     return HFModel(
         title=model_name,
-        inputs=inputs.form(bordered=False),
+        inputs=inputs.form(bordered=False),  # type: ignore
         examples=examples,
         inference_function=query_huggingface_inference_endpoints,
     )
