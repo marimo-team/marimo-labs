@@ -46,7 +46,7 @@ jobs:
       - name: Lint
         run: |
           source marimo-dev-env/bin/activate
-          ruff check marimo/
+          ruff check marimo_labs/
       - name: Typecheck
         if: ${{ matrix.python-version == '3.9' || matrix.python-version == '3.10' }}
         run: |
