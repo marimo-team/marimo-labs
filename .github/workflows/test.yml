@@ -17,7 +17,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        dependencies: ["core", "core,optional"]
         python-version: ["3.8"]
         include:
           - os: ubuntu-latest
@@ -46,12 +45,12 @@ jobs:
           pip install .[dev]
       - name: Lint
         run: |
-          marimo-dev-env\\Scripts\\activate
+          source marimo-dev-env/bin/activate
           ruff check marimo/
       - name: Typecheck
         if: ${{ matrix.python-version == '3.9' || matrix.python-version == '3.10' }}
         run: |
-          marimo-dev-env\\Scripts\\activate
+          source marimo-dev-env/bin/activate
           mypy --config-file pyproject.toml marimo/
       # Test with minimal dependencies
       - name: Test with minimal dependencies
