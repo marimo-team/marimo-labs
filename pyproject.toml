@@ -6,16 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "marimo_labs"
 description = "Cutting-edge experimental features for marimo"
 dynamic = ["version"]
-# We try to keep dependencies to a minimum, to avoid conflicts with
-# user environments;we need a very compelling reason for each dependency added.
-# Dependencies should have lower bounds, which should be as loose as possible.
 dependencies = [
-    "marimo",
-    "huggingface_hub",
-    "requests",
-    "pyyaml",
-    "Pillow",
-    "numpy",
+    "marimo>=0.3.8",
+    "huggingface_hub>=0.19.3",
+    "requests>=2.0",
+    "pyyaml>=5.0",
+    "Pillow>=7.0",
+    "numpy>=1.21.0",
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
