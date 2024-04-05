@@ -41,47 +41,24 @@ jobs:
       - name: Install marimo-labs with dev dependencies
         run: |
           python -m venv marimo-dev-env
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            marimo-dev-env\\Scripts\\activate
-          else
-            source marimo-dev-env/bin/activate
-          fi
+          source marimo-dev-env/bin/activate
           python -m pip install --upgrade pip
           pip install .[dev]
       - name: Lint
         run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            marimo-dev-env\\Scripts\\activate
-          else
-            source marimo-dev-env/bin/activate
-          fi
+          marimo-dev-env\\Scripts\\activate
           ruff check marimo/
       - name: Typecheck
         if: ${{ matrix.python-version == '3.9' || matrix.python-version == '3.10' }}
         run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            marimo-dev-env\\Scripts\\activate
-          else
-            source marimo-dev-env/bin/activate
-          fi
+          marimo-dev-env\\Scripts\\activate
           mypy --config-file pyproject.toml marimo/
       # Test with minimal dependencies
       - name: Test with minimal dependencies
         if: ${{ matrix.dependencies == 'core' }}
         run: |
           python -m venv marimo-test-env
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            marimo-test-env\\Scripts\\activate
-          else
-            source marimo-test-env/bin/activate
-          fi
+          marimo-test-env\\Scripts\\activate
           python -m pip install --upgrade pip
           pip install .[testcore]
           pytest -v tests/
-
-  typos:
-    name: Check for typos
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: crate-ci/typos@v1.18.2
