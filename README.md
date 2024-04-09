@@ -1,6 +1,6 @@
 # marimo labs
 
-This repository contains the following experimental marimo functionality:
+This repository contains experimental functionality for the [marimo notebook](https://github.com/marimo-team/marimo):
 
 🤗 `marimo_labs.huggingface`: interactively experiment with any model on HuggingFace 
 
