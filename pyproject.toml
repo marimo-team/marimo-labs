@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "marimo_labs"
 description = "Cutting-edge experimental features for marimo"
-dynamic = ["version"]
+version = "0.1.0"
 dependencies = [
     "marimo>=0.3.8",
     "huggingface_hub>=0.19.3",
@@ -45,9 +45,6 @@ dev = [
     "typos~=1.20.4",
     "pytest~=8.1.1",
 ]
-
-[tool.setuptools.dynamic]
-version = { attr = "marimo_labs.__version__" }
 
 [tool.setuptools.packages.find]
 # project source is entirely contained in the `marimo` package
